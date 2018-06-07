@@ -1,0 +1,1296 @@
+-- Non-commutative Polynomials in FriCAS
+-- Created: Mon 2017-01-30 11:07
+-- Changed: Don 2017-02-09 11:49
+-- Changed: Sam 2018-03-31 19:05
+
+)abbreviation domain NCPOLY NonCommutativePolynomial
+++ Author: Konrad Schrempf <schrempf@math.tugraz.at>
+++ Date Created: Mon 2017-01-30 11:07
+++ Date Changed: Sam 2018-03-31 19:05
+++ Basic Functions:
+++ Related Constructors: LinearMultivariateMatrixPencil, XDistributedPolynomial
+++ Also See: XDistributedPolynomialFunctions
+++ AMS Classifications:
+++ Keywords: minimal linear representation, admissible linear system
+++ References: http://arxiv.org/pdf/1706.01806
+++ Description:
+
+NonCommutativePolynomial(VAR, F) : Exports == Implementation where
+  F : Field
+  VAR : OrderedSet
+  
+  PI ==> PositiveInteger
+  NNI ==> NonNegativeInteger
+  OF ==> OutputForm
+
+  OFM ==> FreeMonoid(VAR)
+  XDP ==> XDistributedPolynomial(VAR, F)
+  TERM ==> Record(k:OFM, c:F)
+  FACT ==> Record(gen:VAR, exp:NNI)
+  LMMP ==> LinearMultivariateMatrixPencil(F)
+
+  ALTOUT ==> true
+  FLGDBG ==> true
+
+  POS_1 ==> 1$NNI
+  OFF_2 ==> 2::NNI
+
+  Exports == Algebra(F) with
+    _= : (%, %) -> %
+      ++ \spad{f = g} for testing only ...
+
+    -- Basics [ncpoly.bas]
+    qnew : (NNI) -> %
+      ++ \spad{qnew(n)} creates an empty ALS of dimension n.
+    qnew : (NNI, List(OFM)) -> %
+      ++ \spad{qnew(n, lst)} creates an empty ALS of dimension n.
+    new : (LMMP, List(OFM)) -> %
+      ++ \spad{new(lp, lst)} creates an element by the linear
+      ++ multivariate matrix pencil lp and the list of monomials lst.
+    new : (c:F) -> %
+      ++ \spad{new(c)} creates a constant element.
+    new : (m:OFM, c:F) -> %
+      ++ \spad{new(m,c)} creates a monomial element with coefficient c.
+    copy : (%) -> %
+      ++ \spad{copy(f)} gives a copy of the element f.
+    copy : (%, F) -> %
+      ++ \spad{copy(f, alpha)} gives a copy of element f
+      ++ multiplied by alpha.
+    enableDebugOutput : (f:%) -> %
+      ++ \spad{enableDebugOutput(f)} ...
+    disableDebugOutput : (f:%) -> %
+      ++ \spad{disableDebugOutput(f)} ...
+    toggleDebugOutput : (f:%) -> %
+      ++ \spad{toggleDebugOutput(f)} ...
+    enableAlternativeOutput : (f:%) -> %
+      ++ \spad{enableAlternativeOutput(f)} ...
+    disableAlternativeOutput : (f:%) -> %
+      ++ \spad{disableAlternativeOutput(f)} ...
+    toggleAlternativeOutput : (f:%) -> %
+      ++ \spad{toggleAlternativeOutput(f)} ...
+    coerce : (m:OFM) -> %
+      ++ \spad{coerce(m)} converts the monoid m into an element of
+      ++ the ncpoly represented by an ALS in minimal polynomial form.
+    coerce : (c:F) -> %
+      ++ \spad{coerce(c)} converts the constant c into an element of
+      ++ the ncpoly represented by an ALS in minimal polynomial form.
+    coerce : (f:%) -> XDP
+      ++ \spad{coerce(f)} converts the nc polynomial into XDPOLY
+    coerce : (%) -> OutputForm
+      ++ \spad{coerce(f)} prints the element f as polynomial if it is
+      ++ of type 0, 1 or 2 and as ALS of the form A*s = v otherwise.
+    display : (%, OutputForm) -> OutputForm
+      ++ \spad{display(f,sol)} prints the element f as A*sol = v.
+    display : (%, List(Symbol)) -> OutputForm
+      ++ \spad{display(f,[s])} prints the element f as A*(s_1,s_2,...,s_n)' = v.
+
+
+    -- Convert [ncpoly.cvt]
+    admissibleLinearSystem : (%) -> OutputForm
+      ++ \spad{admissibleLinearSystem(f)} for testing only ...
+    lintest : (%) -> Matrix(XDP)
+      ++ \spad{lintest(f)} returns the element f as linearization.
+      ++ For testing only ...
+    linearization : (%) -> Matrix(XDP)
+      ++ \spad{linearization(f)} returns the element f as linearization.
+    linearization : (%) -> Matrix(%)
+      ++ \spad{linearization(f)} returns the element f as linearization
+      ++ with entries represented by admissible linear systems in minimal
+      ++ polynomial form.
+    representation : (%) -> List(Matrix(XDP))
+      ++ \spad{representation(f)} returns the element f as linear
+      ++ representation (u,A,v).
+    polynomial : (%) -> XDP
+      ++ \spad{polynomial(f)} returns f as XDPOLY (if possible)
+    leftVector : (%) -> Matrix(XDP)
+      ++ \spad{leftVector(f)} returns the left family as vector.
+    rightVector : (%) -> Matrix(XDP)
+      ++ \spad{rightVector(f)} returns the right family as vector.
+    columnSpan : (%) -> Stream(Matrix(XDP))
+      ++ \spad{columnSpan(f)} for testing only ...
+    rowSpan : (%) -> Stream(Matrix(XDP))
+      ++ \spad{rowSpan(f)} for testing only ...
+    monomials : (%) -> List(XDP)
+      ++ \spad{monomials(f)} returns a list of the monomials
+      ++ if f is polynomial.
+    leftFamily : (%) -> List(XDP)
+      ++ \spad{leftFamily(f)} returns the left family of f,
+      ++ i.e. A^-1*v
+    rightFamily : (%) -> List(XDP)
+      ++ \spad{rightFamily(f)} returns the right family of f,
+      ++ i.e. u*A^-1
+    leftSupport : (%) -> List(OFM)
+      ++ \spad{leftSupport(f)} returns the union of the support
+      ++ of the left family
+    leftSupport : (%, (OFM) -> OFM) -> List(OFM)
+      ++ \spad{leftSupport(f, rel)} returns the union of the support
+      ++ (using the relation rel) of the left family 
+    rightSupport : (%) -> List(OFM)
+      ++ \spad{rightSupport(f)} returns the union of the support
+      ++ of the right family
+    rightSupport : (%, (OFM) -> OFM) -> List(OFM)
+      ++ \spad{rightSupport(f)} returns the union of the support
+      ++ (using the relation rel) of the right family
+    leftMatrix : (%) -> Matrix(F)
+      ++ \spad{leftMatrix(f)} returns the controllabilty matrix,
+      ++ that is, the matrix of the coefficients corresponding to
+      ++ the entry in the left family and the left support.
+    rightMatrix : (%) -> Matrix(F)
+      ++ \spad{rightMatrix(f)} returns the observability matrix,
+      ++ that is, the matrix of the coefficients corresponding to
+      ++ the entry in the right family and the right support.
+
+    leftFactor : (%, NNI) -> %
+      ++ \spad{leftFactor(f,k)} returns the left factor of f
+      ++ including the upper left pivot blocks up to cummulated
+      ++ size k. Or 1, if it's not possible by linear techniques.
+    rightFactor : (%, NNI) -> %
+      ++ \spad{rightFactor(f,k)} returns the right factor of f
+      ++ including the lower right pivot blocks up to cummulated
+      ++ size k. Or 1, if it's not possible by linear techniques.
+    factorization : (%) -> List(%)
+      ++ \spad{factorization(f)} gives a list of factors
+      ++ corresponding to the upper right structure of zeros.
+
+    pencil : (%) -> LMMP
+      ++ \spad{pencil(f)} returns the underlying pencil.
+
+
+    -- Information [ncpoly.inf]
+    qzero? : (%, NNI, NNI, NNI, NNI) -> Boolean
+      ++ \spad{qzero?(f, i_min, i_max, j_min, j_max)} is the
+      ++ spezified block zero?
+    qzero? : (%, NNI, NNI, NNI, NNI, NNI) -> Boolean
+      ++ \spad{qzero?(f, i_min, i_max, j_min, j_max, l)} is the
+      ++ spezified block zero in matrix l?
+    scalar? : (%) -> Boolean
+      ++ \spad{scalar?(f)} is f scalar?
+    minimal? : (%) -> Boolean
+      ++ \spad{minimal?(f)} is f represented by a minimal ALS?
+    mutable? : (%) -> Boolean
+      ++ \spad{mutable?(f)} is the underlying ALS of f mutable?
+    constant? : (%, NNI, NNI) -> Boolean
+      ++ \spad{constant?(f, i, j)} is A(i,j) constant?
+    zero? : (%, NNI, NNI) -> Boolean
+      ++ \spad{zero?(f, i, j)} is A(i,j) zero?
+    size : (%) -> NNI
+      ++ \spad{size(f)} returns the size of the ALS.
+    rank : (%) -> NNI
+      ++ \spad{rank(f)} gives the rank of the element f if it is given
+      ++ in minimal polynomial form.
+    coefficient : (%, OFM) -> F
+      ++ \spad{coefficient(f, m)} returns the coefficient of the
+      ++ element f corresponding to the monomial m.
+    variables : (%) -> List(OFM)
+      ++ \spad{variables(f)} returns a list of the variables.
+    support : (%) -> List(OFM)
+      ++ \spad{support(f)} returns the support of f if it is a polynomial.
+    elt : (%, NNI) -> F
+      ++ \spad{elt(f, i)} returns v(i) from the ALS (A*s = v) of f.
+    qelt : (%, NNI, NNI) -> XDP
+      ++ \spad{qelt(f, i, j)} returns A(i,j) from the ALS (A*s = v) of f.
+    elt : (%, NNI, NNI) -> XDP
+      ++ \spad{elt(f, i, j)} returns A(i,j) from the ALS (A*s = v) of f.
+    vector : (%) -> Matrix(F)
+      ++ \spad{vector(f)} returns v from the ALS (A*s = v) of f.
+    vector : (%) -> Matrix(XDP)
+      ++ \spad{vector(f)} returns v from the ALS (A*s = v) of f.
+    matrix : (%, OFM) -> Matrix(F)
+      ++ \spad{matrix(f,m)} returns the coefficient matrix for
+      ++ the monomial m of the ALS of f.
+    matrix : (%) -> Matrix(XDP)
+      ++ \spad{matrix(f)} returns the matrix of the ALS of f.
+
+    -- Elementary [ncpoly.ele]
+    swapRowsColumns! : (%, NNI, NNI) -> %
+      ++ \spad{swapRowsColumns!(f, i, j)} exchanges rows i and j and
+      ++ columns j and i in the ALS of f.
+    swapRows! : (%, NNI, NNI) -> %
+      ++ \spad{swapRows!(f, i, j)} exchanges rows i and j in the ALS of f.
+    addRows! : (%, NNI, NNI, F) -> %
+      ++ \spad{addRows!(f, i, j, alpha)} adds alpha*row(i) to row(j) in
+      ++ the ALS of f.
+    multiplyRow! : (%, NNI, F) -> %
+      ++ \spad{multiplyRow!(f, i, alpha)} multiplies row(i) by alpha
+      ++ in the ALS of f.
+    swapColumns! : (%, NNI, NNI) -> %
+      ++ \spad{swapColumns!(f, i, j)} exchanges columns i and j in
+      ++ the ALS of f.
+    addColumns! : (%, NNI, NNI, F) -> %
+      ++ \spad{addColumns!(f, i, j, alpha)} adds alpha*column(i) to
+      ++ column(j) in A and subtracts row(j) from row(i) in s (in the
+      ++ ALS of f), i.e. (A*U)(U^-1*s) = v.
+    _* : (f:%, U:Matrix(F)) -> %
+      ++ \spad{f * U} column transformation
+    _* : (T:Matrix(F), f:%) -> %
+      ++ \spad{T * f} row transformation
+    transformationMatrix : (%) -> Matrix(F)
+      ++ \spad{transformationMatrix(f)} returns the identity matrix
+      ++ to be modified and used within transformRows! or transformColumns!
+    transformRows! : (%, Matrix(F)) -> %
+      ++ \spad{transformRows!(f, T)} transforms the ALS of f from the left.
+    transformColumns! : (%, Matrix(F)) -> %
+      ++ \spad{transformColumns!(f, U)} transforms the ALS of f from the right.
+    appendSupport! : (%, List(OFM)) -> %
+      ++ \spad{appendSupport! (f, lst)} appends variables not in the support.
+    setelt! : (%, NNI, F) -> %
+      ++ \spad{setelt!(f, i, alpha)} sets v(i) = alpha in the ALS of f.
+    setelt! : (%, NNI, NNI, XDP) -> %
+      ++ \spad{setelt!(f, i, j, p)} sets A(i,j) = p in the ALS of f
+      ++ (where p has degree less equal one).
+    removeRowsColumns : (%, List(NNI), List(NNI)) -> %
+      ++ \spad{removeRowsColumns(f, lst_row, lst_col)} returns
+      ++ a new system with the specified rows and columns removed.
+      ++ The number of rows and columns have to be the same!
+    insertRowsColumns : (%, List(NNI), List(NNI)) -> %
+      ++ \spad{insertRowsColumns(f, lst_row, lst_col)} returns
+      ++ a new system with rows and columns inserted. An index
+      ++ k means a new row/column between k and k+1. The number
+      ++ of rows and columns have to be the same!
+
+    -- Standard [ncpoly.std]
+    scale : (%, F) -> %
+      ++ \spad{scale(f, alpha)} computes alpha*f
+
+    -- Minimization [ncpoly.min]
+    blockElimination : (%, List(NNI), List(NNI), Boolean, _
+        List(NNI), List(NNI), Boolean) -> List(Matrix(F))
+      ++ \spad{blockElimination(f, rsrc, rdst, flg_u, csrc, cdst, flg_v)}
+      ++ returns transformation matrices if it is possible to eliminate
+      ++ all entries in rdst x cdst (including columns in u if flg_u = true,
+      ++ including rows in v if flg_v = true) by using rows in rsrc and
+      ++ columns in csrc. Otherwise an empty list.
+    blockElimination : (%, List(NNI), List(NNI), List(NNI), List(NNI)) -> List(Matrix(F))
+      ++ \spad{blockElimination(f, rsrc, rdst, csrc, cdst)}
+      ++ flg_u = true, flg_v = true
+    leftMinStep : (%, NNI) -> %
+      ++ \spad{leftMinStep(f, k)} does a left minimization step
+      ++ in row k (if possible).
+    rightMinStep : (%, NNI) -> %
+      ++ \spad{rightMinStep(f, k)} does a right minimization step
+      ++ in column k (if possible).
+
+    normalize! : (%) -> %
+      ++ \spad{normalize!(f)} rescales the rows such that the
+      ++ first nonzero entry of the coefficient matrix in the
+      ++ diagonal is one. Nonzero entries in the right hand
+      ++ side vector will be eliminated by the nonzero entry
+      ++ with the highest index.
+
+    addSTD : (%, %) -> %
+      ++ \spad{addSTD(f,g)} addition of two polynomials f and g.
+    addMIN : (%, %) -> %
+      ++ \spad{addMIN(f,g)} minimal addition of the polynomials f and g.
+    _+ : (%, F) -> %
+      ++ \spad{f + alpha} adds the scalar alpha to f.
+    _- : (%, F) -> %
+      ++ \spad{f - alpha} subtracts the scalar alpha from f.
+    _+ : (F, %) -> %
+      ++ \spad{alpha + f} adds the scalar alpha to f.
+    _- : (%, F) -> %
+      ++ \spad{alpha - f} adds the scalar alpha to -f.
+    multiplyMIN : (%, % ) -> %
+      ++ \spad{multiplyMIN(f,g)} minimal multiplication of the
+      ++ polynomials f and g (if both are given by minimal linear
+      ++ representations).
+    inverse : (%) -> %
+      ++ \spad{inverse(f)} minimal inverse of non-zero scalar f
+    _/ : (%, F) -> %
+      ++ \spad{f / alpha} computes f / alpha for nonzero alpha.
+    _/ : (F, %) -> %
+      ++ \spad{alpha / f} computes alpha / f for nonzero f.
+    _/ : (%, %) -> %
+      ++ \spad{f / g} computes f * g^-1 for nonzero element g.
+    _^ : (%, PositiveInteger) -> %
+      ++ \spad{f^n} returns f^n.
+    _^ : (%, Integer) -> %
+      ++ \spad{f^n} returns f^n.
+
+    minimize : (%) -> %
+      ++ \spad{minimize(f)} minimizes the unterlying linear
+      ++ representation by applying left and right minimization
+      ++ steps.
+
+    coerce : (p:XDP) -> %
+      ++ \spad{coerce(p)} converts XDPOLY to NCPOLY.
+
+
+  Implementation == add
+    -- A·s = v, [0, u; v, A], u = [1,0,...,0]
+    Rep := Record(size:NNI, _
+                  supp:List(OFM), _
+                  lmmp:LMMP, _
+                  flg_minimal:Boolean, _
+                  flg_mutable:Boolean, _
+                  flg_debug:Boolean, _
+                  flg_output:Boolean)
+    
+    -- FIXME: problem for matrix size 0 with zero element 0$%
+    qnew (n:NNI) : % ==
+      lst_new := [1$OFM]$List(OFM)
+      lp := qnew(n+1, n+1, #lst_new)$LMMP
+      qsetelt!(lp, 1, 2, POS_1, 1$F)
+      flg_min := false
+      [n, lst_new, lp, flg_min, true, FLGDBG, ALTOUT]
+
+    qnew (n:NNI, lst:List(OFM)) : % ==
+      lst_new := cons(1$OFM, remove(1$OFM, lst))
+      lp := qnew(n+1, n+1, #lst_new)$LMMP
+      qsetelt!(lp, 1, 2, POS_1, 1$F)
+      flg_min := false
+      [n, lst_new, lp, flg_min, true, FLGDBG, ALTOUT]
+
+    -- FIXME: check entries in pencil?
+    new (lp:LMMP, lst:List(OFM)) : % ==
+      for mon in lst repeat
+        length(mon) > 1 =>
+          error "NCPOLY: new(lp, lst) - monomials not linear."
+      nrows(lp) ~= ncols(lp) =>
+        error "NCPOLY: new(lp,lst) - Linear Pencil is not square."
+      #lst ~= nelem(lp) =>
+        error "NCPOLY: new(lp,lst) - lengths do not agree."
+      n := (nrows(lp) - 1)::NNI
+      flg_min := false
+      [n, lst, lp, flg_min, true, FLGDBG, ALTOUT]
+
+    qeltA (p:LMMP, i:NNI, j:NNI, l:NNI) : F ==
+      qelt(p, i+1, j+1, l)
+    qeltv (p:LMMP, i:NNI, l:NNI) : F ==
+      qelt(p, i+1, 1, l)
+    qlstA (p:LMMP, i:NNI, j:NNI) : List(F) ==
+      qelt(p, i+1, j+1)
+
+    qsetu! (p:LMMP, i:NNI, l:NNI, alpha:F) : F ==
+      qsetelt!(p, 1, i+1, l, alpha)
+    qsetA! (p:LMMP, i:NNI, j:NNI, l:NNI, alpha:F) : F ==
+      qsetelt!(p, i+1, j+1, l, alpha)
+    qsetv! (p:LMMP, i:NNI, l:NNI, alpha:F) : F ==
+      qsetelt!(p, i+1, 1, l, alpha)
+
+    qmtxu (p:LMMP, j1:NNI, j2:NNI, l:NNI) : Matrix(F) ==
+      subMatrix(p, 1, 1, j1+1, j2+1, l)
+    qmtxA (p:LMMP, i1:NNI, i2:NNI, j1:NNI, j2:NNI, l:NNI) : Matrix(F) ==
+      subMatrix(p, i1+1, i2+1, j1+1, j2+1, l)
+    qmtxv (p:LMMP, i1:NNI, i2:NNI, l:NNI) : Matrix(F) ==
+      subMatrix(p, i1+1, i2+1, 1, 1, l)
+
+    qscalev!(p:LMMP, i1:NNI, i2:NNI, l:NNI, alpha:F) : LMMP ==
+      qscaleBlock!(p, i1+1, i2+1, 1, 1, l, alpha)
+
+    qscale!(f:%, alpha:F) : % ==
+      qscaleBlock!(f.lmmp, 2, f.size+1, 1, 1, POS_1, alpha)
+      f
+
+    qsetmtxu! (p:LMMP, j:NNI, l:NNI, a:Matrix(F)) : Matrix(F) ==
+      setsubMatrix!(p, 1, j+1, l, a)
+    qsetmtxA! (p:LMMP, i:NNI, j:NNI, l:NNI, a:Matrix(F)) : Matrix(F) ==
+      setsubMatrix!(p, i+1, j+1, l, a)
+    qsetmtxv! (p:LMMP, i:NNI, l:NNI, a:Matrix(F)) : Matrix(F) ==
+      setsubMatrix!(p, i+1, 1, l, a)
+
+    qzeroA? (p:LMMP, i:NNI, j:NNI) : Boolean ==
+      qzero?(p, i+1, j+1)
+    qsemizeroA? (p:LMMP, i1:NNI, i2:NNI, j1:NNI, j2:NNI, l:NNI) : Boolean ==
+      qsemizero?(p, i1+1, i2+1, j1+1, j2+1, l)
+    qzerov? (p:LMMP, i1:NNI, i2:NNI) : Boolean ==
+      qzero?(p, i1+1, i2+1, 1, 1)
+
+    0 : % ==
+      als := qnew(1)
+      qsetA!(als.lmmp, 1, 1, POS_1, 1$F)
+      als.flg_minimal := true
+      als.flg_mutable := false
+      als.flg_debug := false
+      als.flg_output := false
+      als
+
+    1 : % ==
+      als := qnew(1)
+      qsetA!(als.lmmp, 1, 1, POS_1, 1$F)
+      qsetv!(als.lmmp, 1, POS_1, 1$F)
+      als.flg_minimal := true
+      als.flg_mutable := false
+      als.flg_debug := false
+      als.flg_output := false
+      als
+
+    getSupport (var:List(VAR)) : List(OFM) ==
+      lst_mon := new(1+#var, 1$OFM)$List(OFM)
+      for k in 1 .. #var repeat
+        lst_mon(k+1) := var(k)::OFM
+      lst_mon
+
+    new (c:F) : % ==
+      if zero?(c) then
+        return(copy(0))
+      als := qnew(1)
+      qsetA!(als.lmmp, 1, 1, POS_1, 1$F)
+      qsetv!(als.lmmp, 1, POS_1, c)
+      als.flg_minimal := true
+      als
+
+    new (m:OFM, c:F) : % ==
+      if zero? c then
+          als := qnew(1)
+          qsetA!(als.lmmp, 1, 1, POS_1, 1$F)
+        else
+          n := length(m) + 1
+          -- FIXME: optimization, 1$OFM not necessary ...
+          als := qnew(n, getSupport(varList(m)))
+          l := 0$NNI
+          -- e.g. for m = xyyx
+          -- factors(m) = [[gen=x,exp=1], [gen=y,exp=2], [gen=x,exp=1]]
+          for fct in factors(m) repeat
+            pos := position((fct.gen)::OFM, als.supp)::NNI
+            for i in 1 .. fct.exp repeat
+              qsetA!(als.lmmp, 1+l, 1+l+1, pos, -1$F)
+              l := l + 1
+          for k in 1 .. n repeat
+            qsetA!(als.lmmp, k, k, POS_1, 1$F)
+          qsetv!(als.lmmp, n, POS_1, c)
+      als.flg_minimal := true
+      als
+
+    copy (f:%) : % ==
+      lmmp_new := copy(f.lmmp)
+      supp_new := copy(f.supp)
+      [f.size, supp_new, lmmp_new, f.flg_minimal, _
+        true, f.flg_debug, f.flg_output]
+
+    copy (f:%, alpha:F) : % ==
+      if zero?(alpha) then
+        return(copy(0))
+      lmmp_new := copy(f.lmmp)
+      supp_new := copy(f.supp)
+      qscalev!(lmmp_new, 1, f.size, POS_1, alpha)
+      [f.size, supp_new, lmmp_new, f.flg_minimal, _
+        true, f.flg_debug, f.flg_output]
+
+
+    -- FIXME: return pointer to matrices in LMMP (more efficient)
+    toMatrix (p:LMMP, lst:List(OFM), r_min:NNI, r_max:NNI, c_min:NNI, c_max:NNI) : Matrix(XDP) ==
+      nelem(p) ~= #lst =>
+        error "NCPOLY: toMatrix(p,lst) - number of elements do not agree."
+      m := (r_max + 1 - r_min)::NNI
+      n := (c_max + 1 - c_min)::NNI
+      A_wrk := new(m,n,0$XDP)$Matrix(XDP)
+      for k in 1 .. #lst repeat
+        A_tmp := subMatrix(p, r_min, r_max, c_min, c_max, k)
+        for i in 1 .. m repeat
+          for j in 1 .. n repeat
+            qsetelt!(A_wrk, i, j, qelt(A_wrk, i, j) + qelt(A_tmp, i, j)*lst(k)::XDP)
+      A_wrk
+
+    display (f:%, sol:OutputForm) : OutputForm ==
+      mtx_A := toMatrix(f.lmmp, f.supp, 2, f.size+1, 2, f.size+1)
+      mtx_v := toMatrix(f.lmmp, f.supp, 2, f.size+1, 1, 1)
+      als_of := mtx_A::OF * sol::OF = mtx_v::OF
+      als_of
+
+    enableDebugOutput (f:%) : % ==
+      f.flg_debug := true
+      f
+
+    disableDebugOutput (f:%) : % ==
+      f.flg_debug := false
+      f
+
+    toggleDebugOutput (f:%) : % ==
+      f.flg_debug := not(f.flg_debug)
+      f
+
+    enableAlternativeOutput (f:%) : % ==
+      f.flg_output := true
+      f
+
+    disableAlternativeOutput (f:%) : % ==
+      f.flg_output := false
+      f
+
+    toggleAlternativeOutput (f:%) : % ==
+      f.flg_output := not(f.flg_output)
+      f
+
+    coerce (f:%) : OutputForm ==
+      if (f.size = 1$NNI) and scalar?(f) then
+        alpha := qeltv(f.lmmp, 1, POS_1) / qeltA(f.lmmp, 1, 1, POS_1)
+        return(alpha::OF)
+      sym : Symbol := 's
+      if not(f.flg_debug) then
+        return(polynomial(f)::OF)
+      out_of := display(f, sym::OF)
+      if f.flg_minimal then
+        txt_of := "MIN"::String::OF
+        out_of := semicolonSeparate([out_of, hconcat(hspace(1), txt_of)])
+      if f.flg_output then
+        inf_of := polynomial(f)::OF
+        out_of := semicolonSeparate([out_of, hconcat(hspace(1), inf_of)])
+        return(out_of)
+      out_of
+
+    coerce (m:OFM) : % ==
+      new(m, 1$F)
+
+    coerce (c:F) : % ==
+      copy(1, c)
+
+    display (f:%, sym:List(Symbol)) : OutputForm ==
+      n := f.size
+      sym_wrk : Symbol := 's
+      if #sym > 0 then
+        sym_wrk := first(sym)
+      lst := new(n,[])$List(List(OutputForm))
+      for k in 1 .. n repeat
+        lst(k) := [sub(sym_wrk::OF, k::OF)@OF]
+      display(f, matrix(lst)::OF)
+
+    admissibleLinearSystem (f:%) : OutputForm ==
+      display(f, 's::OutputForm)
+
+    lintest (f:%) : Matrix(XDP) ==
+      L_wrk := toMatrix(f.lmmp, f.supp, 1, f.size+1, 1, f.size+1)
+      n := nrows(L_wrk)
+      for i in 2 .. n repeat
+        for j in 2 .. n repeat
+          qsetelt!(L_wrk, i, j, -qelt(L_wrk, i, j))
+      flg_std := true
+      if not(qelt(L_wrk, n, 1) = 1$XDP) then
+        flg_std := false
+      for i in 2 .. (n-1)::NNI repeat
+        if not(L_wrk(i,1) = 0$XDP) then
+          flg_std := false
+      if flg_std and (n>2) then
+        m := (n-2)::NNI
+        L_new := new(m, m, 0$XDP)$Matrix(XDP)
+        for i in 1 .. m repeat
+          for j in 1 .. m repeat
+            qsetelt!(L_new, i, (m+1-j)::NNI, qelt(L_wrk, i+1, j+2))
+        L_wrk := L_new
+      L_wrk
+
+    linearization (f:%) : Matrix(XDP) ==
+      L_wrk := toMatrix(f.lmmp, f.supp, 1, f.size+1, 1, f.size+1)
+      for k in 2 .. nrows(L_wrk) repeat
+        qsetelt!(L_wrk, k, 1, -qelt(L_wrk, k, 1))
+      L_wrk
+
+    linearization (f:%) : Matrix(%) ==
+      n := f.size
+      L_wrk := new(n+1, n+1, 0)$Matrix(%)
+      for i in 1 .. n+1 repeat
+        for j in 1 .. n+1 repeat
+          if qsemizero?(f.lmmp, i, i, j, j, POS_1) then
+              a_wrk := qelt(f.lmmp, i, j, POS_1)
+              if j = 1 then
+                a_wrk := -a_wrk
+              if not(zero?(a_wrk)) then
+                qsetelt!(L_wrk, i, j, disableDebugOutput(copy(1, a_wrk)))
+            else
+              als := qnew(2, f.supp)
+              lp_new := als.lmmp
+              qsetu!(lp_new, 1, POS_1, 1$F)
+              qsetv!(lp_new, 2, POS_1, 1$F)
+              qsetA!(lp_new, 1, 1, POS_1, 1$F)
+              qsetA!(lp_new, 2, 2, POS_1, 1$F)
+              for l in 1 .. #f.supp repeat
+                qsetA!(lp_new, 1, 2, l, -qelt(f.lmmp, i, j, l))
+              als.flg_minimal := true
+              als.flg_debug := false
+              qsetelt!(L_wrk, i, j, disableDebugOutput(als))
+      L_wrk
+
+    representation (f:%) : List(Matrix(XDP)) ==
+      mtx_u := toMatrix(f.lmmp, f.supp, 1, 1, 2, f.size+1)
+      mtx_A := toMatrix(f.lmmp, f.supp, 2, f.size+1, 2, f.size+1)
+      mtx_v := toMatrix(f.lmmp, f.supp, 2, f.size+1, 1, 1)
+      [mtx_u, mtx_A, mtx_v]
+
+    polynomial (f:%) : XDP ==
+      s_wrk := leftVector(f)@Matrix(XDP)
+      p_wrk := qelt(s_wrk, 1, 1)
+
+    leftVector (f:%) : Matrix(XDP) ==
+      n := f.size
+      s_wrk := new(n, 1, 0$XDP)$Matrix(XDP)
+      for i in n .. 1 by -1 repeat
+        p_wrk := elt(f, i)::XDP
+        for j in i+1 .. n repeat
+          p_wrk := p_wrk - elt(f, i, j) * qelt(s_wrk, j, 1)
+        qsetelt!(s_wrk, i, 1, p_wrk)
+      s_wrk
+
+    rightVector (f:%) : Matrix(XDP) ==
+      n := f.size
+      t_wrk := new(1, n, 0$XDP)$Matrix(XDP)
+      for j in 1 .. n repeat
+        p_wrk := 0$XDP
+        if j = 1$NNI then
+          p_wrk := 1$XDP
+        for i in 1 .. (j-1)::NNI repeat
+          p_wrk := p_wrk - qelt(t_wrk, 1, i) * elt(f, i, j)
+        qsetelt!(t_wrk, 1, j, p_wrk)
+      t_wrk
+
+    leftFamily (f:%) : List(XDP) ==
+      s_wrk := leftVector(f)
+      lst_fam := new(f.size, 0)$List(XDP)
+      for k in 1 .. f.size repeat
+        lst_fam(k) := s_wrk(k, 1)
+      lst_fam
+
+    rightFamily (f:%) : List(XDP) ==
+      t_wrk := rightVector(f)
+      lst_fam := new(f.size, 0)$List(XDP)
+      for k in 1 .. f.size repeat
+        lst_fam(k) := t_wrk(1, k)
+      lst_fam
+
+    leftSupport (f:%) : List(OFM) ==
+      s_wrk := leftVector(f)
+      lst_mon : List(OFM) := []
+      for k in 1 .. f.size repeat
+        lst_mon := sort(removeDuplicates(merge(support(s_wrk(k,1)), lst_mon)))
+      lst_mon
+
+    leftSupport (f:%, rel:(OFM) -> OFM) : List(OFM) ==
+      s_wrk := leftVector(f)
+      lst_mon : List(OFM) := []
+      lst_wrk : List(OFM) := []
+      for k in 1 .. f.size repeat
+        lst_wrk := map(rel, support(s_wrk(k,1)))
+        lst_mon := sort(removeDuplicates(merge(lst_wrk, lst_mon)))
+      lst_mon
+
+    rightSupport (f:%) : List(OFM) ==
+      t_wrk := rightVector(f)
+      lst_mon : List(OFM) := []
+      for k in 1 .. f.size repeat
+        lst_mon := sort(removeDuplicates(merge(support(t_wrk(1,k)), lst_mon)))
+      lst_mon
+
+    rightSupport (f:%, rel:(OFM) -> OFM) : List(OFM) ==
+      t_wrk := rightVector(f)
+      lst_mon : List(OFM) := []
+      for k in 1 .. f.size repeat
+        lst_wrk := map(rel, support(t_wrk(1,k)))
+        lst_mon := sort(removeDuplicates(merge(lst_wrk, lst_mon)))
+      lst_mon
+
+    -- controllability matrix
+    leftMatrix (f:%) : Matrix(F) ==
+      s_wrk := leftVector(f)
+      l_mon := leftSupport(f)
+      n := #l_mon
+      V := new(f.size, n, 0$F)$Matrix(F)
+      for i in 1 .. f.size repeat
+        for j in 1 .. n repeat
+          qsetelt!(V, i, j, coefficient(s_wrk(i, 1), l_mon(j)))
+      V
+
+    -- observability matrix
+    rightMatrix (f:%) : Matrix(F) ==
+      t_wrk := rightVector(f)
+      l_mon := rightSupport(f)
+      n := #l_mon
+      U := new(n, f.size, 0$F)$Matrix(F)
+      for j in 1 .. f.size repeat
+        for i in 1 .. n repeat
+          qsetelt!(U, i, j, coefficient(t_wrk(1,j), l_mon(i)))
+      U
+
+    coerce (f:%) : XDP ==
+      polynomial(f)
+
+    -- FIXME: minimize support, not fully implemented ...
+    factorization (f:%) : List(%) ==
+      lst_fct : List(%) := []
+      als := copy(f)
+      normalize!(f)
+      if als.size <= 2 then
+        lst_fct := cons(als, lst_fct)
+        return(lst_fct)
+      n := als.size
+      lp := als.lmmp
+      for k in (n-2)::NNI .. 1 by -1 repeat
+        m_1 := k+1
+        m_2 := (n-k)::NNI
+        if qzero?(als, 1, k, m_1+1, n) then
+          f_1 := qnew(m_1, als.supp)
+          f_2 := qnew(m_2, als.supp)
+          lp_1 := f_1.lmmp
+          lp_2 := f_2.lmmp
+          for l in 1 .. #(als.supp) repeat
+            qsetmtxA!(lp_1, 1, 1, l, qmtxA(lp, 1, (m_1-1)::NNI, 1, m_1, l))
+            qsetmtxA!(lp_2, 1, 1, l, qmtxA(lp, m_1, n, m_1, n, l))
+          qsetA!(lp_1, m_1, m_1, POS_1, 1$F)
+          qsetv!(lp_1, m_1, POS_1, 1$F)
+          qsetv!(lp_2, m_2, POS_1, qeltv(lp, n, POS_1))
+          if als.flg_minimal then
+            f_1.flg_minimal := true
+            f_2.flg_minimal := true
+          lst_fct := factorization(f_1)
+          lst_fct := concat(lst_fct, [f_2])
+          return(lst_fct)
+      lst_fct := cons(als, lst_fct)
+      lst_fct
+
+    pencil (f:%) : LMMP ==
+      copy(f.lmmp)
+
+    monomials (f:%) : List(XDP) ==
+      lst_mon := new(f.size, [])$List(List(XDP))
+      for i in f.size .. 1 by -1 repeat
+        lst_wrk : List(XDP) := []
+        v_wrk := qeltv(f.lmmp, i, POS_1)
+        for j in f.size .. i by -1 repeat
+          if i = j then
+              if not(v_wrk = 0$F) then
+                lst_wrk := cons(v_wrk::XDP, lst_wrk)
+            else
+              mon_wrk := monomials(qelt(f, i, j)@XDP)
+              mon_tmp := lst_mon(j)
+              for mon_1 in mon_wrk repeat
+                for mon_2 in mon_tmp repeat
+                  lst_wrk := cons(-mon_1*mon_2, lst_wrk)
+        lst_mon(i) := lst_wrk
+      lst_mon(1)
+
+    qzero? (f:%, i_min:NNI, i_max:NNI, j_min:NNI, j_max:NNI) : Boolean ==
+      qzero?(f.lmmp, i_min+1, i_max+1, j_min+1, j_max+1)
+
+    qzero? (f:%, i_min:NNI, i_max:NNI, j_min:NNI, j_max:NNI, l:NNI) : Boolean ==
+      qzero?(f.lmmp, i_min+1, i_max+1, j_min+1, j_max+1, l)
+
+    scalar? (f:%) : Boolean ==
+      if f.size > 1 then
+        return(false)
+      true
+
+    minimal? (f:%) : Boolean ==
+      if not(f.flg_minimal) then
+        rank_V := rank(leftMatrix(f))
+        rank_U := rank(rightMatrix(f))
+        if (f.size = rank_V) and (f.size = rank_U) then
+          return(true)
+      f.flg_minimal
+
+    mutable? (f:%) : Boolean ==
+      f.flg_mutable
+
+    constant? (f:%, i:NNI, j:NNI) : Boolean ==
+      a_lst := qlstA(f.lmmp, i, j)
+      flg_wrk := true
+      for k in 2 .. #(f.supp) repeat
+        if not(zero?(a_lst(k))) then
+          flg_wrk := false
+          break
+      flg_wrk
+
+    zero? (f:%, i:NNI, j:NNI) : Boolean ==
+      flg_wrk := constant?(f, i, j) and zero?(qeltA(f.lmmp, i, j, POS_1))
+      flg_wrk
+
+    zero? (f:%) : Boolean ==
+      not(f.flg_minimal) =>
+        error "NCPOLY: zero?(%) - function is not minimal."
+      flg_wrk := false
+      if f.size = 1 then
+        if zero?(qeltv(f.lmmp, 1, POS_1)) then
+          flg_wrk := true
+      flg_wrk
+
+    size (f:%) : NNI ==
+      f.size
+
+    coefficient (f:%, mon:OFM) : F ==
+      coefficient(polynomial(f), mon)
+
+    rank (f:%) : NNI ==
+      not(f.flg_minimal) =>
+        error "NCPOLY: rank(%) - system is not minimal."
+      rnk_wrk := f.size
+      if f.size = 1 then
+        if zero?(qeltv(f.lmmp, 1, POS_1)) then
+          rnk_wrk := 0
+      rnk_wrk
+
+    variables (f:%) : List(OFM) ==
+      copy(f.supp)
+
+    support (f:%) : List(OFM) ==
+      support(polynomial(f))
+
+    elt (f:%, i:NNI) : F ==
+      (i < 1) or (i > f.size) =>
+        error "NCPOLY: elt(%,i) - index out of range."
+      qeltv(f.lmmp, i, POS_1)
+
+    qelt (f:%, i:NNI, j:NNI) : XDP ==
+      a_tmp := 0$XDP
+      for k in 1 .. #(f.supp) repeat
+        a_tmp := a_tmp + qeltA(f.lmmp, i, j, k)*elt(f.supp, k)::XDP
+      a_tmp
+
+    elt (f:%, i:NNI, j:NNI) : XDP ==
+      (i < 1) or (i > f.size) or (j < 1) or (j > f.size) =>
+        error "NCPOLY: elt(%,i,j) - index out of range."
+      qelt(f, i, j)
+
+    vector (f:%) : Matrix(F) ==
+      qmtxv(f.lmmp, 1, f.size, POS_1)
+
+    vector (f:%) : Matrix(XDP) ==
+      v_tmp := qmtxv(f.lmmp, 1, f.size, POS_1)
+      v_wrk := new(nrows(v_tmp), 1, 0$XDP)$Matrix(XDP)
+      for i in 1 .. nrows(v_tmp) repeat
+        qsetelt!(v_wrk, i, 1, qelt(v_tmp, i, 1)::XDP)
+      v_wrk
+
+    matrix (f:%, m:OFM) : Matrix(F) ==
+      pos := position(m, f.supp)::NNI
+      pos = 0 =>
+        error "NCPOLY: matrix(%,m) - monoid not available."
+      qmtxA(f.lmmp, 1, f.size, 1, f.size, pos)
+
+    matrix (f:%) : Matrix(XDP) ==
+      n := f.size
+      A_wrk := new(n,n,0$XDP)$Matrix(XDP)
+      for k in 1 .. #(f.supp) repeat
+        A_tmp := qmtxA(f.lmmp, 1, f.size, 1, f.size, k)
+        for i in 1 .. n repeat
+          for j in 1 .. n repeat
+            qsetelt!(A_wrk, i, j, qelt(A_wrk, i, j) _
+              + qelt(A_tmp, i, j)*elt(f.supp, k)::XDP)
+      A_wrk
+
+    qswapRows! (f:%, i:NNI, j:NNI) : % ==
+      if not(i = j) then
+        qswapRows!(f.lmmp, i+1, j+1)
+      f
+
+    qaddRows! (f:%, i:NNI, j:NNI, alpha:F) : % ==
+      if not(i=j) then
+        qaddRows!(f.lmmp, i+1, j+1, alpha)
+      f
+
+    addRows! (f:%, i:NNI, j:NNI, alpha:F) : % ==
+      i <= j =>
+        error "NCPOLY: addRows!(%,i,j,alpha) - first index must be strictly larger."
+      (i < 1) or (i > f.size) or (j < 1) or (j > f.size) =>
+        error "NCPOLY: addRows!(%,i,j,alpha) - index/indices out of range."
+      addRows!(f.lmmp, i+1, j+1, alpha)
+      f
+
+    qmultiplyRow! (f:%, i:NNI, alpha:F) : % ==
+      qmultiplyRow!(f.lmmp, i+1, alpha)
+      f
+
+    qmultiplyColumn! (f:%, i:NNI, alpha:F) : % ==
+      qmultiplyColumn!(f.lmmp, i+1, alpha)
+      f
+
+    multiplyRow! (f:%, i:NNI, alpha:F) : % ==
+      if alpha = 1$F then
+        return(f)
+      (i < 1) or (i > f.size) =>
+        error "NCPOLY: multiplyRow!(%,i,alpha) - index out of range."
+      zero?(alpha) =>
+        error "NCPOLY: multiplyRow!(%,i,alpha) - zero factor."
+      i < 2 =>
+        error "NCPOLY: multiplyRow!(%,i,alpha) - row 1 must not be touched."
+      qmultiplyRow!(f.lmmp, i+1, alpha)
+      qmultiplyColumn!(f.lmmp, i+1, 1$F/alpha)
+      f
+      
+    qswapColumns! (f:%, i:NNI, j:NNI) : % ==
+      if not(i = j) then
+        qswapColumns!(f.lmmp, i+1, j+1)
+      f
+
+    addColumns! (f:%, i:NNI, j:NNI, alpha:F) : % ==
+      i >= j =>
+        error "NCPOLY: addColumns!(%,i,j,alpha) - first index must be strictly smaller."
+      (i < 1) or (i > f.size) or (j < 1) or (j > f.size) =>
+        error "NCPOLY: addColumns!(%,i,j,alpha) - index/indices out of range."
+      i = 1 =>
+        error "NCPOLY: addColumns!(%,i,j,alpha) - first column must not be used."
+      addColumns!(f.lmmp, i+1, j+1, alpha)
+      f
+
+    qaddColumns! (f:%, i:NNI, j:NNI, alpha:F) : % ==
+      if not(i=j) then
+        addColumns!(f.lmmp, i+1, j+1, alpha)
+      f
+
+    f:% * U:Matrix(F) ==
+      f_new := copy(f)
+      transformColumns!(f_new, U)
+
+    T:Matrix(F) * f:% ==
+      f_new := copy(f)
+      transformRows!(f_new, T)
+
+    transformationMatrix (f:%) : Matrix(F) ==
+      trf_mtx := new(f.size, f.size, 0$F)$Matrix(F)
+      for k in 1 .. f.size repeat
+        qsetelt!(trf_mtx, k, k, 1$F)
+      trf_mtx
+
+    -- FIXME: check non-allowed transformations!
+    transformRows! (f:%, T:Matrix(F)) : % ==
+      not(nrows(T) = ncols(T)) or not(nrows(T) = f.size) =>
+        error "NCPOLY: transformRows!(%,T) - wrong matrix size."
+      trf_mtx := leftIdentity(f.lmmp)
+      setsubMatrix!(trf_mtx, 2, 2, T)
+      transformRows!(f.lmmp, trf_mtx)
+      f
+
+    -- FIXME: check non-allowed transformations!
+    transformColumns! (f:%, U:Matrix(F)) : % ==
+      not(nrows(U) = ncols(U)) or not(nrows(U) = f.size) =>
+        error "NCPOLY: transformColumns!(%,U) - wrong matrix size."
+      flg_wrk := true
+      for j in 2 .. f.size repeat
+        if not(zero?(qelt(U, 1, j))) then
+          flg_wrk := false
+          break
+      not(qelt(U, 1, 1) = 1$F) or not(flg_wrk) =>
+        error "NCPOLY: transformColumns!(%,U) - first column must not be changed."
+      trf_mtx := rightIdentity(f.lmmp)
+      setsubMatrix!(trf_mtx, 2, 2, U)
+      transformColumns!(f.lmmp, trf_mtx)
+      f
+
+    -- FIXME: return value like in matrices?
+    setelt! (f:%, i:NNI, alpha:F) : % ==
+      not(f.flg_mutable) =>
+        error "NCPOLY: setelt!(%,i,alpha) - nc polynomial is not mutable."
+      (i < 1) or (i > f.size) =>
+        error "NCPOLY: setelt!(%,i,alpha) - index out of range."
+      v_old := qeltv(f.lmmp, i, POS_1)
+      if not(v_old = alpha) then
+        qsetv!(f.lmmp, i, POS_1, alpha)
+        if f.flg_minimal and (i=f.size) and zero?(alpha) then
+          f.flg_minimal := false
+      f
+
+    appendSupport! (f:%, lst:List(OFM)) : % ==
+      lst_new : List(OFM) := []
+      for mon in lst repeat
+        pos := position(mon, f.supp)::NNI
+        if zero?(pos) then
+          lst_new := cons(mon, lst_new)
+      if #lst_new > 0 then
+        append!(f.lmmp, #lst_new)
+      f.supp := append(f.supp, lst_new)
+      f
+          
+    setelt! (f:%, i:NNI, j:NNI, p:XDP) : % ==
+      not(f.flg_mutable) =>
+        error "NCPOLY: setelt!(%,i,j,alpha) - nc polynomial is not mutable."
+      if not(p = 0$XDP) then
+        degree(p) > 1 =>
+          error "NCPOLY: setelt!(%,i,j,p) - degree higher than one."
+      (i < 1) or (i > f.size) or (j < 1) or (j > f.size) =>
+        error "NCPOLY: setelt!(%,i,j,p) - index out of range."
+      (j <= i) =>
+        error "NCPOLY: setelt!(%,i,j,p) - entry must not be changed."
+      a_old := qlstA(f.lmmp, i, j)
+      for k in 1 .. #(f.supp) repeat
+        qsetA!(f.lmmp, i, j, k, 0$F)
+      lst_app : List(OFM) := []
+      for mon in getSupport(varList(p)) repeat
+        pos := position(mon, f.supp)::NNI
+        if zero?(pos) then
+          lst_app := cons(mon, lst_app)
+      if #lst_app > 0 then
+        appendSupport!(f, lst_app)
+      for mon in getSupport(varList(p)) repeat
+        pos := position(mon, f.supp)::NNI
+        qsetA!(f.lmmp, i, j, pos, coefficient(p, mon))
+      a_new := qlstA(f.lmmp, i, j)
+      if not(a_old = a_new) then
+        f.flg_minimal := false
+      f
+
+    -- FIXME: check rows and columns!
+    removeRowsColumns (f:%, lst_row:List(NNI), lst_col:List(NNI)) : % ==
+      lst_r := map(a +-> a+1, removeDuplicates(lst_row))$List(NNI)
+      lst_c := map(a +-> a+1, removeDuplicates(lst_col))$List(NNI)
+      #lst_r ~= #lst_c =>
+        error "NCPOLY: removeRowsColumns(%,rows,cols) - number of rows and columns must be the same."
+      f_new := new(removeRowsColumns(f.lmmp, lst_r, lst_c), f.supp)
+      f_new
+
+    insertRowsColumns (f:%, lst_row:List(NNI), lst_col:List(NNI)) : % ==
+      lst_r := map(a +-> a+1, lst_row)$List(NNI)
+      lst_c := map(a +-> a+1, lst_col)$List(NNI)
+      #lst_r ~= #lst_c =>
+        error "NCPOLY: insertRowsColumns(%,rows,cols) - number of rows and columns must be the same."
+      f_new := new(insertRowsColumns(f.lmmp, lst_r, lst_c), f.supp)
+      for k in 1 .. #lst_r repeat
+        qsetA!(f_new.lmmp, k+lst_row(k), k+lst_col(k), POS_1, 1$F)
+      f_new
+    normalize! (f:%) : % ==
+      -- Normalize v with respect to last element
+      i_ref := 0$NNI
+      v_ref := 0$F
+      for i in f.size .. 1 by -1 repeat
+        v_wrk := qeltv(f.lmmp, i, POS_1)
+        if not(zero?(v_wrk)) then
+          if i_ref > 0 then
+              qaddRows!(f, i_ref, i, -v_wrk/v_ref)
+            else
+              v_ref := v_wrk
+              i_ref := i
+      f
+
+    addSTD (f:%, g:%) : % ==
+      lst := sort(removeDuplicates(merge(f.supp, g.supp)))
+      als := qnew(f.size+g.size, lst)
+      lp_f := f.lmmp
+      lp_g := g.lmmp
+      lp_new := als.lmmp
+      for k in 1 .. #(f.supp) repeat
+        mon := elt(f.supp, k)
+        pos := position(mon, lst)::NNI
+        qsetmtxu!(lp_new, 1, pos, qmtxu(lp_f, 1, f.size, k))
+        qsetmtxA!(lp_new, 1, 1, pos, qmtxA(lp_f, 1, f.size, 1, f.size, k))
+        qsetmtxv!(lp_new, 1, pos, qmtxv(lp_f, 1, f.size, k))
+      for k in 1 .. #(g.supp) repeat
+        mon := elt(g.supp, k)
+        pos := position(mon, lst)::NNI
+        qsetmtxu!(lp_new, f.size+1, pos, qmtxu(lp_g, 1, g.size, k))
+        qsetmtxA!(lp_new, f.size+1, f.size+1, pos, _
+          qmtxA(lp_g, 1, g.size, 1, g.size, k))
+        qsetmtxv!(lp_new, f.size+1, pos, qmtxv(lp_g, 1, g.size, k))
+      qaddColumns!(als, 1, f.size+1, -1$F)
+      als.flg_minimal := false
+      als
+
+    addMIN (f:%, g:%) : % ==
+      als := addSTD(f, g)
+      if not(als.flg_minimal) then
+        als := minimize(als)
+      als
+
+    multiplyMIN (f:%, g:%) : % ==
+      if scalar?(f) then
+        return(copy(g, qeltv(f.lmmp, 1, POS_1)))
+      if scalar?(g) then
+        return(copy(f, qeltv(g.lmmp, 1, POS_1)))
+      lst := sort(removeDuplicates(merge(f.supp, g.supp)))
+      m := (f.size-1)::NNI
+      n := m + g.size
+      als := qnew(n, lst)
+      lp_f := f.lmmp
+      lp_g := g.lmmp
+      lp_new := als.lmmp
+      lambda_f := qeltv(f.lmmp, f.size, POS_1)
+      for k in 1 .. #(f.supp) repeat
+        mon := elt(f.supp, k)
+        pos := position(mon, lst)::NNI
+        qsetmtxA!(lp_new, 1, m+1, pos, _
+          lambda_f*qmtxA(lp_f, 1, m, f.size, f.size, k) - qmtxv(lp_f, 1, m, k))
+        qsetmtxA!(lp_new, 1, 1, pos, qmtxA(lp_f, 1, m, 1, m, k))
+      for k in 1 .. #(g.supp) repeat
+        mon := elt(g.supp, k)
+        pos := position(mon, lst)::NNI
+        qsetmtxv!(lp_new, f.size, pos, qmtxv(lp_g, 1, g.size, k))
+        qsetmtxA!(lp_new, f.size, f.size, pos, _
+          qmtxA(lp_g, 1, g.size, 1, g.size, k))
+      als.flg_minimal := f.flg_minimal and g.flg_minimal
+      als
+
+    rescale! (f:%, alpha:F) : % ==
+      if zero?(alpha) then
+        return(copy(0))
+      qscalev!(f.lmmp, 1, f.size, POS_1, alpha)
+      f
+
+    scale (f:%, alpha:F) : % ==
+      if zero?(alpha) then
+        return(copy(0))
+      copy(f, alpha)
+
+    gamma:Integer * f:% == scale(f, gamma::F)
+
+    alpha:F * f:% == scale(f, alpha)
+
+    f:% * alpha:F == scale(f, alpha)
+
+    - f ==
+      copy(f, -1$F)
+
+    f:% / alpha:F ==
+      zero?(alpha) =>
+        error "NCPOLY: f / alpha - division by zero."
+      copy(f, 1$F / alpha)
+
+    alpha:F / f:% ==
+      if zero?(alpha) then
+        return(copy(0))
+      f_inv := inverse(f)
+      rescale!(f_inv, alpha)
+      f_inv
+
+    -- FIXME: check indices! overlapping?
+    qblockElimination (f:%, rsrc:List(NNI), rdst:List(NNI), flg_u:Boolean, _
+        csrc:List(NNI), cdst:List(NNI), flg_v:Boolean) : List(Matrix(F)) ==
+      row_src := map(a +-> a+1, rsrc)$List(NNI)
+      row_dst := map(a +-> a+1, rdst)$List(NNI)
+      row_ext : List(NNI) := []
+      if flg_u then
+        row_ext := cons(1, row_ext)
+      col_src := map(a +-> a+1, csrc)$List(NNI)
+      col_dst := map(a +-> a+1, cdst)$List(NNI)
+      col_ext : List(NNI) := []
+      if flg_v then
+        col_ext := cons(1, col_ext)
+      lst_trn := blockElimination(f.lmmp, row_src, row_dst, row_ext, _
+        col_src, col_dst, col_ext)
+      lst_trn
+
+    -- FIXME: check indices
+    blockElimination (f:%, rsrc:List(NNI), rdst:List(NNI), flg_u:Boolean, _
+        csrc:List(NNI), cdst:List(NNI), flg_v:Boolean) : List(Matrix(F)) ==
+      lst_trn := qblockElimination(f, rsrc, rdst, flg_u, csrc, cdst, flg_v)
+      if #lst_trn > 0 then
+        for k in 1 .. #lst_trn repeat
+          lst_trn(k) := subMatrix(lst_trn(k), 2, f.size+1, 2, f.size+1)
+      lst_trn
+
+    blockElimination (f:%, rsrc:List(NNI), rdst:List(NNI), _
+        csrc:List(NNI), cdst:List(NNI)) : List(Matrix(F)) ==
+      blockElimination(f, rsrc, rdst, true, csrc, cdst, true)
+
+    leftMinStep (f:%, k:NNI) : % ==
+      n := f.size
+      (k < 1) or (k >= n) =>
+        error "NCPOLY: leftMinStep - row out of bounds."
+      lst_1 : List(NNI) := []
+      lst_2 : List(NNI) := []
+      lst_k : List(NNI) := [k]
+      for i in n .. (k+1) by -1 repeat
+        lst_2 := cons(i, lst_2)
+      for i in k .. 1 by -1 repeat
+        lst_1 := cons(i, lst_1)
+      trn_wrk := blockElimination(f, lst_2, lst_k, true, lst_1, lst_2, true)
+      g := copy(f)
+      if #trn_wrk > 0 then
+        if k = 1 then
+          return(0)
+        transformRows!(g, trn_wrk(1))
+        transformColumns!(g, trn_wrk(2))
+        g := removeRowsColumns(g, lst_k, lst_k)
+        return(g)
+      if k = (n-1)::NNI then
+        trn_wrk := blockElimination(f, lst_2, lst_k, false, lst_1, lst_2, true)
+        if #trn_wrk > 0 then
+          transformRows!(g, trn_wrk(1))
+          setelt!(trn_wrk(2), n, k, 1/elt(trn_wrk(2), k, n))
+          setelt!(trn_wrk(2), k, n, 0$F)
+          transformColumns!(g, trn_wrk(2))
+          qswapRows!(g, k, n)
+          lst_n : List(NNI) := [n]
+          g := removeRowsColumns(g, lst_n, lst_n)
+      g
+
+    rightMinStep (f:%, k:NNI) : % ==
+      n := f.size
+      (k <= 1) or (k > n) =>
+        error "NCPOLY: rightMinStep - column out of bounds."
+      lst_1 : List(NNI) := []
+      lst_2 : List(NNI) := []
+      lst_k : List(NNI) := [k]
+      for i in n .. k by -1 repeat
+        lst_2 := cons(i, lst_2)
+      for i in (k-1)::NNI .. 1 by -1 repeat
+        lst_1 := cons(i, lst_1)
+      trn_wrk := blockElimination(f, lst_2, lst_1, true, lst_1, lst_k, false)
+      g := copy(f)
+      if #trn_wrk > 0 then
+        transformRows!(g, trn_wrk(1))
+        transformColumns!(g, trn_wrk(2))
+        g := removeRowsColumns(g, lst_k, lst_k)
+      g
+
+    -- FIXME: optimization possible (avoid copying non-changing elements)
+    minimize (f:%) : % ==
+      als := copy(f)
+      k := 2::NNI
+      while k <= als.size repeat
+        n := als.size
+        k_l := (n + 1 - k)::NNI
+        als := leftMinStep(als, k_l)
+        if als.size < n then
+            if (k > 2) and (2*k > n+1) then
+              k := (k-1)::NNI
+          else
+            als := rightMinStep(als, k)
+            if als.size < n then
+                if (k > 2) and (2*k > n+1) then
+                  k := (k-1)::NNI
+              else
+                k := k+1
+      als.flg_minimal := true
+      normalize!(als)
+
+    leadingCoefficient (a_lst:List(F)) : F ==
+      i_ref := 1$NNI
+      while (i_ref < #a_lst) and zero?(a_lst(i_ref)) repeat
+        i_ref := i_ref + 1
+      a_lst(i_ref)
+
+
+    inverse (f:%) : % ==
+      not(scalar?(f)) =>
+        error "NCPOLY: inverse(f) - polynomial not invertible."
+      zero?(qeltv(f.lmmp, 1, POS_1)) =>
+        error "NCPOLY: inverse(f) - zero element is not invertible."
+      return(copy(1, 1/qeltv(f.lmmp, 1, POS_1)))
+
+    f:% / g:% ==
+      not(g.flg_minimal) =>
+        error "NCPOLY: f / g - g not minimal."
+      multiplyMIN(f, inverse(g))
+
+    f:% * g:% ==
+      multiplyMIN(f, g)
+
+    f:% - alpha:F ==
+      addMIN(f, -alpha::%)
+
+    f:% - g:% ==
+      addMIN(f, -g)
+
+    f:% + alpha:F ==
+      addMIN(f, alpha::%)
+
+    f:% + g:% ==
+      addMIN(f, g)
+
+    f:% ^ n:PositiveInteger ==
+      f_wrk := f
+      for k in 2 .. n repeat
+        f_wrk := multiplyMIN(f_wrk, f)
+      f_wrk
+
+    f:% ^ n:Integer ==
+      if zero?(n) then
+        return(0)
+      if n < 0 then
+        g := inverse(f)
+        return(g^(-n)::PositiveInteger)
+      f^n
+
+    coerce (p:XDP) : % ==
+      lst_mon := monomials(p)
+      mon_wrk := first(support(lst_mon(1)))
+      als := new(mon_wrk, coefficient(lst_mon(1), mon_wrk))
+      for k in 2 .. #lst_mon repeat
+        mon_wrk := first(support(lst_mon(k)))
+        als := addMIN(als, new(mon_wrk, coefficient(lst_mon(k), mon_wrk)))
+      als
+
+    

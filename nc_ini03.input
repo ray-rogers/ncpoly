@@ -1,0 +1,20 @@
+-- Working with nc polynomials (in free associative algebras)
+-- Created: Sam 2018-03-31 19:21
+
+)compile linpen.spad
+)compile ncpoly.spad
+)compile ncpolyf.spad
+
+ALPHABET := ['x, 'y, 'z];
+OVL ==> OrderedVariableList(ALPHABET)
+OFM ==> FreeMonoid(OVL)
+F ==> Fraction(Integer)
+G ==> Fraction(Polynomial(Integer))
+XDP ==> XDPOLY(OVL, F)
+YDP ==> XDPOLY(OVL, G)
+NCP ==> NCPOLY(OVL, F)
+x := 'x::OFM;
+y := 'y::OFM;
+z := 'z::OFM;
+OF ==> OutputForm
+
