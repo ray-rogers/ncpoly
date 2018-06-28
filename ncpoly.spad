@@ -18,7 +18,7 @@
 NonCommutativePolynomial(VAR, F) : Exports == Implementation where
   F : Field
   VAR : OrderedSet
-  
+
   PI ==> PositiveInteger
   NNI ==> NonNegativeInteger
   OF ==> OutputForm
@@ -36,8 +36,6 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
   OFF_2 ==> 2::NNI
 
   Exports == Algebra(F) with
-    _= : (%, %) -> %
-      ++ \spad{f = g} for testing only ...
 
     -- Basics [ncpoly.bas]
     qnew : (NNI) -> %
@@ -124,7 +122,7 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
       ++ of the left family
     leftSupport : (%, (OFM) -> OFM) -> List(OFM)
       ++ \spad{leftSupport(f, rel)} returns the union of the support
-      ++ (using the relation rel) of the left family 
+      ++ (using the relation rel) of the left family
     rightSupport : (%) -> List(OFM)
       ++ \spad{rightSupport(f)} returns the union of the support
       ++ of the right family
@@ -324,7 +322,7 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
                   flg_mutable:Boolean, _
                   flg_debug:Boolean, _
                   flg_output:Boolean)
-    
+
     -- FIXME: problem for matrix size 0 with zero element 0$%
     qnew (n:NNI) : % ==
       lst_new := [1$OFM]$List(OFM)
@@ -413,6 +411,8 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
       als.flg_debug := false
       als.flg_output := false
       als
+
+    (f:% = g:%) : Boolean == zero? addMIN(f, -g)
 
     getSupport (var:List(VAR)) : List(OFM) ==
       lst_mon := new(1+#var, 1$OFM)$List(OFM)
@@ -901,7 +901,7 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
       qmultiplyRow!(f.lmmp, i+1, alpha)
       qmultiplyColumn!(f.lmmp, i+1, 1$F/alpha)
       f
-      
+
     qswapColumns! (f:%, i:NNI, j:NNI) : % ==
       if not(i = j) then
         qswapColumns!(f.lmmp, i+1, j+1)
@@ -984,7 +984,7 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
         append!(f.lmmp, #lst_new)
       f.supp := append(f.supp, lst_new)
       f
-          
+
     setelt! (f:%, i:NNI, j:NNI, p:XDP) : % ==
       not(f.flg_mutable) =>
         error "NCPOLY: setelt!(%,i,j,alpha) - nc polynomial is not mutable."
@@ -1292,5 +1292,3 @@ NonCommutativePolynomial(VAR, F) : Exports == Implementation where
         mon_wrk := first(support(lst_mon(k)))
         als := addMIN(als, new(mon_wrk, coefficient(lst_mon(k), mon_wrk)))
       als
-
-    
