@@ -1,0 +1,247 @@
+-- polynomfactor to determine the rank of the factors
+
+)read nc_ini03.input
+f:NCP := 1-x
+
+--rank 3
+f0:NCP := (1-x)*(1-y)
+f1:NCP := 1-x*y --matrix full
+f2:NCP := y*y -9 --(y+3)*(y-3) --f2 matrix full
+f21:NCP := x*x-2
+f22:NCP := 4*x*x-9
+
+-- rank 4
+com:NCP := x*y-y*x
+anticom :NCP := x*y+y*x
+f3:NCP := (x+1)*(x+2)*(x-2)
+--x*x*x+x*x-4*x-4 erhält Bruchzahlen in Lösung
+f31:NCP := x*y*z-3*x*y+x*z+2*y*z-3*x-6*y+2*z-6
+--(y+1)*(x+2)*(z-3)
+f32:NCP := (y+1)*(x+2)*(x-2)
+--y*x*x+x*x-4*y-4 
+f33:NCP := (z+1)*(z+2)*(x-2)
+--z*z*x+3*z*x-2*z*z+2*x-6*z-4
+f34:NCP := z*(x*x-2)
+f35:NCP := x*x*x-10*x*x+31*x-30
+f351:NCP := (x-2)*(x-3)*(x-5)
+f36:NCP := x*(1-y*x)
+f37:NCP := (1-x*y)*x
+f38:NCP := x-x*y*x
+f39:NCP := 4*x*x*y-4*x*x-9*y+9
+
+-- rank 5
+f23:NCP := (y-z*x)^2
+--hua1:NCP := x^(-1)+(x*y*x-x)^(-1)
+f4:NCP := (1-x*y)*(1-y*x)
+f5:NCP := 1-x*y-1*y*x+x*y^2*x --gleich wie f4
+f6:NCP := (x*y)*(1-x*y)
+f41:NCP := (x+1)*(x+2)*(x-2)*x
+
+-- rank 6
+p:NCP := x*(1-y*x)*(3+y*x)
+p1:NCP := 3*x-2*x*y*x-x*y*x*y*x -- gleich wie p
+p2:NCP := x*(1-y*x)*(3-y*x)
+p3:NCP := 3*x-4*x*y*x+x*y*x*y*x --gleich wie p2
+
+-- rank 7
+q:NCP := (1-x*y)*(3-x*y)*(3+x*y)
+q1:NCP := 9-9*x*y-x*y*x*y+x*y*x*y*x*y --gleich wie q
+-- genau 0.01 (IN) + 0.08 (ET) + 0.02 (OT) = 0,11 sec
+
+
+
+-- rank 8
+f7:NCP := (1-x*y)*(2+y*x)*(3-y*z)*z
+
+-- rank 9
+f8:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)
+
+-- rank 10
+f9:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*x
+
+-- rank 11
+f10:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)
+-- genau 0.01 (IN) + 4.17 (ET) + 0.05 (OT) = 4,23 sec
+-- rank 12
+f11:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*z
+-- genau 0.01 (IN) + 9.58 (ET) + 0.03 (OT) = 9,62 sec
+-- rank 13
+f12:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)
+-- f12 liefert Ergebnis in ca 0.5 Minuten (Netzbetrieb aufladen)
+-- genau 0.0 (IN) + 27.09 (ET) + 0.04 (OT) = 27,13 sec
+-- Batterie: 0.07 (IN) + 26.27 (ET) + 0.1 (OT) = 26,44 sec
+-- rank 14
+f13:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x
+-- f13 liefert Ergebnis in ca 8.5 Minuten (Netzbetrieb aufladen)
+-- genau 0.01 (IN) + 513,50 (ET) + 0.04 (OT) = 513,54 sec
+-- Batterie: 0.01 (IN) + 501,06 (ET) + 0.06 (OT) = 501,14 sec
+
+-- rank 15
+f14:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x*z
+--Controll stack exhausted ab f14
+-- rank 16
+f15:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x*z*y
+-- rank 17
+f16:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x*z*y*(1-x)
+-- rank 18
+f17:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x*z*y*(1-x)*z
+-- rank 21
+f20:NCP := (1-x*y)*(2+y*x)*(3-y*z)*(2-z*y)*(1-x*z)*(3+z*x)*x*z*y*(3+z*y)*z*(2-y*x)
+
+-- rank 4 teilblöcke
+v1:NCP := (1-x*y*z)*(1-z*x)*y
+v2:NCP := (1-x*y*z)*(1-z*y*x)*(3+y*x*z)*y
+
+--irreducible
+g:NCP := 1-x*y*z*y*x*z --degree 6
+g1:NCP := 1-x*y*z*y*x*z*y*z*x*z --degree 10
+g2:NCP := 1-x*y*z*y*x*z*y*z*x*z*y*z*x  --degree 13
+g3:NCP := 1-x*y*z*y*x*z*y*z*x*z*y*z  --degree 12
+g4:NCP := 1-x*y*z*y*x*z*y*z*x*z*y   --rank 12
+
+getTime() == integer(GET_-INTERNAL_-REAL_-TIME()$Lisp)
+
+clockTicks := integer(INTERNAL_-TIME_-UNITS_-PER_-SECOND$Lisp)
+
+-- case: polynomial has degree 2
+-- print the solutions with solve
+
+Polyfactsol(f:NCP) : List(PF) ==
+  lst_I := listIdealsf(f, 'a, 'b)
+  --groe:List(PF) := []
+  --lsg := []
+  groe:List(PF) := groebner first lst_I
+  vars := transformationVariables(f, 'a, 'b) 
+  if groe = [1] then 
+      print("trivial ideal- irreducible polynomial")
+    else 
+      lsg := solve(groe,vars)
+      print(lsg)
+  groe
+
+
+-- case: polynomial has degree > 3
+-- the ranks of all factors are determined
+-- the minimal rank is determined first
+
+Polyfactrkmin(f:NCP, n:NNI) : List(PF) ==
+  P:Matrix(PF) := leftTransformation(f,'a)
+  Q:Matrix(PF) := rightTransformation(f,'b)
+  A:Matrix(DoubleFloat) := new(n-2,9,0)
+  --s := leftFamily f
+  --lambda:F := s(n)
+  L:= liftMatrix matrix f
+  --if s(n) = 1 then 
+    --  L:=liftMatrix matrix f
+    --else 
+      --L := matrix multiplyRow!(f, 4, lambda)
+  PLQ := P*L*Q
+  --id_prev := [] --KOMMENTIEREN
+  c := 3 -- column counter
+  groe1:List(PF) := []
+  groe_use:List(PF) := []
+  for k in 1 .. n-2 repeat 
+    id_new := concat map(coefficients, members subMatrix(PLQ, 1, k, c, n))
+    ideal := concat(id_new, groe_use) --id_prev
+    --print(ideal)
+    A(k,1) := n
+    A(k,2) := #ideal
+    A(k,3) := #removeDuplicates(reduce(setUnion, map(variables,ideal)))
+    --print(-)
+    --print(#ideal)
+    --print(#removeDuplicates(reduce(setUnion, map(variables,ideal))))
+    t1 := getTime()
+    groe1 := groebner ideal
+    t2 := getTime()
+    varused := removeDuplicates(reduce(setUnion, map(variables,groe1)))
+    degmax := 0
+    degmax := reduce(max, map(totalDegree, groe1))
+   -- deg := 0
+    --for glg in groe1 repeat
+      -- for v in varused repeat
+        -- deg := degree(glg, v)
+         --if deg > degmax then
+           --degmax := deg
+    A(k,4) := #groe1
+    A(k,5) := #varused
+    A(k,6) := degmax
+    A(k,7) := (t2-t1)/clockTicks::DoubleFloat
+    --print(#removeDuplicates(reduce(setUnion, map(variables,groe1))))
+    --print((t2-t1)/clockTicks::DoubleFloat)
+    if groe1 = [1] then
+        --print("no solution")
+        A(k,8) := 0
+      else
+        groe_use := groe1 
+        --id_prev := id_new --KOMMENTIEREN
+        --print(k)
+        --print(n-k-1)
+        A(k,8) := k
+        A(k,9) := n-k-1
+        --groe_use := groebner concat(groe_use, id_new)
+    c := c+1
+  print("BEGRES")
+  print(A) --tex(A)
+  print("ENDRES")
+  groe_use 
+
+-- case: polynomial has degree > 3
+-- the ranks of all factors are determined
+
+Polyfactrk(f:NCP, n:NNI) : List(Polynomial(F)) ==
+  P:Matrix(PF) := leftTransformation(f,'a)
+  Q:Matrix(PF) := rightTransformation(f,'b)
+  L:= liftMatrix matrix f
+  PLQ := P*L*Q
+  id_prev := []
+  c := 3 -- column counter
+  groe_current:List(Polynomial(F)) := []
+  groe_next:List(Polynomial(F)) := []
+  for k in 1 .. n-3 repeat 
+    id_new := concat map(coefficients, members subMatrix(PLQ, 1, k, c, n))
+    ideal := concat(id_new, id_prev)
+    groe_current := groebner ideal
+    id_test := concat map(coefficients, members subMatrix(PLQ, 1, k+1, c+1, n))
+    ideal_next := concat(id_test, id_prev)
+    groe_next := groebner ideal_next
+    if groe_current = [1] then 
+        if groe_next = [1] then
+            print("groes trivial")
+          else 
+            print("groe next nicht trivial")
+            id_prev := id_test
+            print(k+1)
+            print(n-c)
+      else 
+        if groe_next = [1] then
+            print("groe current nicht trivial")
+            id_prev := id_new
+            print(k)
+            print(n-c)
+          else 
+            print("beide groe nicht trivial")
+            id_prev := id_test
+            print(k+1)
+            print(n-c)
+    c := c+1
+  groe_current
+
+-- factorisation of a noncommutative polynomial respectively 
+-- determine the rank of the polynomial factors
+
+Polyfact(f:NCP) : List(PF) ==
+  n := rank(f)
+  groe:List(PF) := []
+  if n < 3 then
+    print("Error: rank too small")
+  if n = 3 then
+    groe := Polyfactsol(f)  
+  if n > 3 then 
+    groe := Polyfactrkmin(f,n)
+    if n = 4 then
+      vars := transformationVariables(f, 'a, 'b)
+      sol := solve(groe, vars)
+      print(sol)
+  groe
+
+

@@ -1,0 +1,124 @@
+-- Volle Matrizen (Test)
+-- überarbeitet von Birgit Janko
+
+
+ ALPHABET := ['x, 'y, 'z];
+OVL ==> OrderedVariableList(ALPHABET)
+OFM ==> FreeMonoid(OVL)
+F ==> Complex(Fraction(Integer))
+XDP ==> XDPOLY(OVL, F)
+YDP ==> XDPOLY(OVL, Polynomial(F))
+x := 'x::OFM;
+y := 'y::OFM;
+z := 'z::OFM;
+OF ==> OutputForm
+
+--)read Matrix2.input
+
+getTime() == integer(GET_-INTERNAL_-REAL_-TIME()$Lisp)
+
+clockTicks := integer(INTERNAL_-TIME_-UNITS_-PER_-SECOND$Lisp)
+
+getcoeffs (a:YDP) : List(Polynomial(F)) ==
+   [elt(trm,c) for trm in listOfTerms(a) | not(elt(trm,k) = 1$OFM)]
+
+--full? (M:Matrix(YDP)) : List(Boolean) ==
+-- List List POLY F
+full? (M:Matrix(YDP)):Matrix(DoubleFloat) ==
+   n := nrows(M)
+   B:Matrix(DoubleFloat) := new(n,7,0)
+   sym_P:=[[subscript(a,[i,j]) for j in 1..n] for i in 1..n]
+   sym_Q:=[[subscript(b,[i,j]) for j in 1..n] for i in 1..n]
+   P_ply:Matrix POLY F := matrix sym_P
+   Q_ply:Matrix POLY F := matrix sym_Q
+   P:= P_ply :: Matrix YDP
+   Q:= Q_ply :: Matrix YDP
+   det_P := determinant(P_ply)
+   det_Q := determinant(Q_ply)
+   vars := concat(concat(sym_P)$List(Symbol), concat(sym_Q)$List(Symbol))
+   --output(vars::OF)$OutputPackage
+   A : Matrix(YDP) := P * M * Q
+   ncvars := removeDuplicates concat [varList a for a in concat listOfLists A]
+   lst_I := new(n, [])$List List(DMP(vars, F))
+   for r in 1 .. n repeat
+     lstlstcoeff := [coefficients p for p in concat listOfLists subMatrix(A, 1, r, r, n)]
+     lst_I(r) := [p::DMP(vars,F) for p in concat lstlstcoeff]
+     B(r,1) := n
+     B(r,2) := #lst_I(r)
+     B(r,3) := #removeDuplicates(reduce(setUnion, map(variables,lst_I(r))))
+   coe_p := (det_P - 1$Polynomial(F))::DMP(vars, F)
+   coe_q := (det_Q - 1$Polynomial(F))::DMP(vars, F)
+   --groe := [groebner concat([coe_p, coe_q], I) for I in lst_I]
+   k := 1 --counter
+   groe1:List List POLY F := []
+   for I in lst_I repeat
+     ideal := concat([coe_p, coe_q], I)
+     t1 := getTime()
+     groe := groebner ideal
+     t2 := getTime()
+     B(k,4) := #groe
+     groe1:List List POLY F := concat(groe1, [groe])
+     varused := removeDuplicates(reduce(setUnion, map(variables, groe)))
+     B(k,5) := #varused
+     degmax := 0
+     --deg := 0
+     degmax := reduce(max, map(totalDegree, groe))
+     --for glg in groe repeat
+       -- for v in varused repeat
+         -- deg := degree(glg, v)
+          --if deg > degmax then
+            --degmax := deg
+     --print(degmax)
+     B(k,6) := degmax
+     B(k,7) := (t2-t1)/clockTicks::DoubleFloat
+     k := k+1
+   print("BEGRES")
+   print(B)
+   print("ENDRES")
+   --groePF :List List POLY F := [[p::POLY F for p in lp] for lp in groe1]
+   --groe1
+   B
+
+fullHDMP? (M:Matrix(YDP)):Matrix(DoubleFloat) ==
+   n := nrows(M)
+   B:Matrix(DoubleFloat) := new(n,7,0)
+   sym_P:=[[subscript(a,[i,j]) for j in 1..n] for i in 1..n]
+   sym_Q:=[[subscript(b,[i,j]) for j in 1..n] for i in 1..n]
+   P_ply:Matrix POLY F := matrix sym_P
+   Q_ply:Matrix POLY F := matrix sym_Q
+   P:= P_ply :: Matrix YDP
+   Q:= Q_ply :: Matrix YDP
+   det_P := determinant(P_ply)
+   det_Q := determinant(Q_ply)
+   vars := concat(concat(sym_P)$List(Symbol), concat(sym_Q)$List(Symbol))
+   A : Matrix(YDP) := P * M * Q
+   ncvars := removeDuplicates concat [varList a for a in concat listOfLists A]
+   lst_I := new(n, [])$List List(HDMP(vars, F))
+   for r in 1 .. n repeat
+     lstlstcoeff := [coefficients p for p in concat listOfLists subMatrix(A, 1, r, r, n)]
+     lst_I(r) := [p::HDMP(vars,F) for p in concat lstlstcoeff]
+     B(r,1) := n
+     B(r,2) := #lst_I(r)
+     B(r,3) := #removeDuplicates(reduce(setUnion, map(variables,lst_I(r))))
+   coe_p := (det_P - 1$Polynomial(F))::HDMP(vars, F)
+   coe_q := (det_Q - 1$Polynomial(F))::HDMP(vars, F)
+   k := 1 --counter
+   groe1:List List POLY F := []
+   for I in lst_I repeat
+     ideal := concat([coe_p, coe_q], I)
+     t1 := getTime()
+     groe := groebner ideal
+     t2 := getTime()
+     B(k,4) := #groe
+     groe1:List List POLY F := concat(groe1, [groe])
+     varused := removeDuplicates(reduce(setUnion, map(variables, groe)))
+     B(k,5) := #varused
+     degmax := 0
+     degmax := reduce(max, map(totalDegree, groe))
+     B(k,6) := degmax
+     B(k,7) := (t2-t1)/clockTicks::DoubleFloat
+     k := k+1
+   print("BEGRES")
+   print(B)
+   print("ENDRES")
+   B

@@ -1,0 +1,50 @@
+)clear all
+)read nc_ini03-a.input
+p_01 : NCP := 1 - x*y;
+p_02 := p_01 + 2*p_01
+rank(p_02)
+p_03 := addSTD(p_01, p_01)
+size(p_03)
+addRows!(p_03, 6, 3, -1);
+addColumns!(p_03, 3, 6, 1);
+p_03
+p_04 := removeRowsColumns(p_03, [3], [3])
+addRows!(p_04, 3, 1, 1);
+p_05 := removeRowsColumns(p_04, [3], [3])
+p_06 := minimize(p_05)
+rank(p_06)
+p_11 : NCP := x*y*x*y
+p_12 := copy(p_11);
+p_12(1,5) := -z::XDP;
+p_12 := minimize(p_12)
+p_13 := 3::NCP
+admissibleLinearSystem(p_13)
+p_14 : NCP := x*y+z;
+representation(p_14)
+pencil(p_14)
+multiplyRow!(p_14, 3, 7);
+p_14
+vars := transformationVariables(p_12, 'a, 'b);
+eqns13 := equationList(p_12, 1);
+eqns22 := equationList(p_12, 2);
+eqns31 := equationList(p_12, 3);
+groe13 := groebner(eqns13::List(DMP(vars, F)));
+groe22 := groebner(eqns22::List(DMP(vars, F)));
+groe31 := groebner(eqns31::List(DMP(vars, F)));
+[groe13, groe22, groe31]
+p_21 : NCP := x*(1-y*x)*(3-y*x);
+addRows!(p_21, 4, 2, 1);
+addColumns!(p_21, 3, 5, -1);
+p_21
+leftFamily(p_21)
+rightFamily(p_21)
+vars := transformationVariables(p_21, 'a, 'b)
+eqns := equationList(p_21, 3)
+groe := groebner(eqns::List(DMP(vars, F)))
+trn_21 := blockElimination(p_21,[4,5], [1,2,3],[2,3], [5,6])
+p_22 := trn_21(1) * p_21 * trn_21(2)
+fct_22 := factorization(p_22);
+map(rank, fct_22)
+fct_22(1)
+fct_22(2)
+fct_22(3)

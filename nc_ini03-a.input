@@ -1,0 +1,41 @@
+-- Working with nc polynomials (in free associative algebras)
+-- Created: Sam 2018-03-31 19:21
+
+)compile linpen.spad
+)compile ncpoly.spad
+)compile ncpolyf.spad
+
+--ALPHABET := ['x, 'y, 'z];
+--OVL ==> OrderedVariableList(ALPHABET)
+--OFM ==> FreeMonoid(OVL)
+--F ==> Fraction(Integer)
+G ==> Fraction(Polynomial(Integer))
+--XDP ==> XDPOLY(OVL, F)
+--YDP ==> XDPOLY(OVL, G)
+--NCP ==> NCPOLY(OVL, F)
+--x := 'x::OFM;
+--y := 'y::OFM;
+--z := 'z::OFM;
+OF ==> OutputForm
+--
+-- Bill Page redefinitions of nc_ini-3.input
+-- to accomidate symbolic coefficients
+--
+ALPHABET := ['x, 'y, 'z, 'w];
+PARAMETERS := ['a,'b,'c, 'd];
+OVL ==> OrderedVariableList(ALPHABET)
+OFM ==> FreeMonoid(OVL)
+MP ==> MPOLY(PARAMETERS,Integer)
+F ==> Fraction(MP)
+XDP ==> XDPOLY(OVL, F)
+YDP ==> XDPOLY(OVL, G)
+NCP ==> NCPOLY(OVL, F)
+x := 'x::OFM::XDP;
+y := 'y::OFM::XDP;
+z := 'z::OFM::XDP;
+w := 'w::OFM::XDP;
+a := 'a::F;
+b := 'b::F;
+c := 'c::F;
+d := 'd::F;
+

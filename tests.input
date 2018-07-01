@@ -1,0 +1,16 @@
+--
+p_01 : NCP := a - b*x*y;
+p_02 := p_01 + 2*p_01
+p_02record := buildrecord(p_02 :: NCP);
+p_02 :: XDP
+p_02record.polFactors
+p_02record.NCpass
+
+--
+--p_03 := addSTD(p_01, c*a*p_02);
+p_03	:= p_01+c*a*p_02;
+p_03a := (p_01+p_02)*p_03;
+p_03arecord := buildrecord(p_03a :: NCP);
+p_03a :: XDP
+p_03arecord.polFactors
+p_03arecord.NCpass

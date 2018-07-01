@@ -1,0 +1,19 @@
+)abbrev package RANDPPK RandomPermutationPackage
+RandomPermutationPackage:Exports == Implementation where
+  Exports ==> with
+    randomPermutation:Integer -> List Integer
+    ++ \spad{randomPermutation(n)} returns a random permutation
+    ++ of the numbers [1,2,...,n]. Knuth shuffle
+    ++ [Ruskey, Combinatorial Generation, Section 10.1].
+  Implementation ==> add
+    randomPermutation n ==
+       -- start with identity permutation
+       res:List Integer := [k for k in 1..n]
+       for i in 2..n repeat
+           j := 1 + random(i)$Integer
+           -- swap
+           tmp:= res.i
+           res.i := res.j
+           res.j := tmp
+       res
+

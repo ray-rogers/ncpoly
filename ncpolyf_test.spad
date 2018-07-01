@@ -1,0 +1,126 @@
+-- Non-commutative Polynomials in FriCAS
+-- Created: Don 2017-02-02 13:40
+-- Changed: 
+
+)abbreviation package NCPOLYF NonCommutativePolynomialFunctions
+++ Author: Konrad Schrempf <schrempf@math.tugraz.at>
+++ Date Created: Don 2017-02-02 13:40
+++ Date Changed: 
+++ Basic Functions:
+++ Related Constructors: NonCommutativePolynomial
+++ Also See: XDistributedPolynomial
+++ AMS Classifications:
+++ Keywords: 
+++ References: Schrempf 2017
+++ Description:
+
+NonCommutativePolynomialFunctions(VAR, F) : Exports == Implementation where
+  F : Field
+  VAR : OrderedSet
+  
+  NNI ==> NonNegativeInteger
+  OF ==> OutputForm
+  
+  G ==> Polynomial(F)
+  OFM ==> FreeMonoid(VAR)
+  XDP ==> XDistributedPolynomial(VAR, F)
+  NCP ==> NonCommutativePolynomial(VAR, F)
+  TERM ==> Record(k:OFM, c:F)
+  FACT ==> Record(gen:VAR, exp:NNI)
+  LMMP ==> LinearMultivariateMatrixPencil(F)
+
+  ALTOUT ==> true
+  FLGDBG ==> true
+
+  POS_1 ==> 1$NNI
+  OFF_2 ==> 2::NNI
+
+  Exports == with
+    leftTransformation : (NCP, Symbol) -> Matrix(G)
+      ++ \spad{leftTransformation(f,a)} returns an admissible
+      ++ row transformation matrix with variables a_{i,j}.
+    rightTransformation : (NCP, Symbol) -> Matrix(G)
+      ++ \spad{rightTransformation(f,b)} returns an admissible
+      ++ column transformation matrix with variables b_{i,j}.
+    transformationVariables : (NCP, Symbol, Symbol) -> List(Symbol)
+      ++ \spad{transformationVariables(f,a,b)} returns a list
+      ++ of symbols used in the row and column transformation
+      ++ matrices.
+    equationMatrices : (NCP, NNI) -> List(Matrix(G))
+      ++ \spad{equationMatrix(f, k)} returns a list of matrices
+      ++ with polynomial entries for each element in the support
+      ++ of f for eliminating the upper right block of size
+      ++ k*(n-1-k).
+    equationList : (NCP, NNI) -> List(G)
+      ++ \spad{equationLIst(f, k)} uses equationMatrices(f, k)
+      ++ to return a single list.
+
+
+  Implementation == add
+    
+    leftTransformation (f:NCP, a:Symbol) : Matrix(G) ==
+      n := size(f)
+      trf_mtx := new(n, n, 0$G)$Matrix(G)
+      for k in 1 .. n repeat
+        qsetelt!(trf_mtx, k, k, 1$G)
+      if n > 2 then
+        for i in 1 .. (n-2)::NNI repeat
+          for j in i+1 .. (n-1)::NNI repeat
+            qsetelt!(trf_mtx, i, j, ((a[i::OF,j::OF])::Symbol)::G)
+      trf_mtx
+
+    rightTransformation (f:NCP, b:Symbol) : Matrix(G) ==
+      n := size(f)
+      trf_mtx := new(n, n, 0$G)$Matrix(G)
+      for k in 1 .. n repeat
+        qsetelt!(trf_mtx, k, k, 1$G)
+      if n > 2 then
+        for i in 2 .. (n-1)::NNI repeat
+          for j in i+1 .. n repeat
+            qsetelt!(trf_mtx, i, j, ((b[i::OF,j::OF])::Symbol)::G)
+      trf_mtx
+
+    transformationVariables (f:NCP, a:Symbol, b:Symbol) : List(Symbol) ==
+      n := size(f)
+      lst_sym : List(Symbol) := []
+      if n > 2 then
+        for i in (n-1)::NNI .. 2 by -1 repeat
+          for j in n .. i+1 by -1 repeat
+            lst_sym := cons((b[i::OF,j::OF])::Symbol, lst_sym)
+        for i in (n-2)::NNI .. 1 by -1 repeat
+          for j in (n-1)::NNI .. i+1 by -1 repeat
+            lst_sym := cons((a[i::OF,j::OF])::Symbol, lst_sym)
+      lst_sym
+
+    -- FIXME: Konvertierung sollte einfacher gehen ...
+    equationMatrices (f:NCP, k:NNI) : List(Matrix(G)) ==
+      m := size(f)
+      k+2 > m =>
+        error "NCPOLYF: equationMatrices(f,k) - number of rows too big."
+      n := m+1
+      lp := pencil(f)
+      lst_eqn : List(Matrix(G)) := []
+      P_wrk := leftTransformation(f, 'a)
+      Q_wrk := rightTransformation(f, 'b)
+      A_wrk := new(m, m, 0$G)$Matrix(G)
+      for l in nelem(lp) .. 1 by -1 repeat
+        A_tmp := subMatrix(lp, 2, n, 2, n, l)
+        for i in 1 .. m repeat
+          for j in 1 .. m repeat
+            qsetelt!(A_wrk, i, j, qelt(A_tmp, i, j)::G)
+        E_wrk := P_wrk * A_wrk * Q_wrk
+        lst_eqn := cons(subMatrix(E_wrk, 1, k, k+2, m), lst_eqn)
+      lst_eqn
+
+    equationList (f:NCP, k:NNI) : List(G) ==
+      n := size(f)
+      lst_wrk := equationMatrices(f, k)
+      lst_eqn : List(G) := []
+      for k in #lst_wrk .. 1 by -1 repeat
+        E_wrk := lst_wrk(k)
+        for i in nrows(E_wrk) .. 1 by -1 repeat
+          for j in ncols(E_wrk) .. 1 by -1 repeat
+            lst_eqn := cons(qelt(E_wrk, i, j), lst_eqn)
+      lst_eqn
+
+    

@@ -1,0 +1,39 @@
+)clear all;
+)read nc_ini03-a.input 
+--)read nc_ini03.input
+--)display names
+--
+--
+-- Factor test
+--
+--
+factor_test : (XDP,LIST(NCP))-> BOOLEAN
+factor_test(x::XDP , y::LIST(NCP))  ==
+ m:=1::XDP;
+ n:=#map(rank,y)
+ for i in 1..n repeat m:=m*(y(i)::XDP) 
+ test(x = m)
+--
+
+--
+
+--
+
+p_01 : NCP := a - b*x*y;
+p_02 := p_01 + 2*p_01;
+rank(p_02);
+p_03 := addSTD(p_01, p_01);
+size(p_03);
+p_11 : NCP := x*y*x*y+a;
+p_14: NCP := a*x*y+b*z;
+representation(p_14);
+pencil(p_14);
+multiplyRow!(p_14, 3, 7);
+p_14
+p_02 :: XDP;
+p_12 := p_02*p_02+p_02;
+p_12 :: XDP;
+fct_12 := factorization(p_12);
+test(p_12 :: XDP = fct_12(1)::XDP * fct_12(2)::XDP)
+factor_test(p_12::XDP,fct_12::LIST(NCP))
+

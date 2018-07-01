@@ -1,0 +1,50 @@
+)compile linpen.spad
+)compile ncpoly.spad
+)compile xdpolyf.spad
+)compile ncpolyf_test.spad
+ALPHABET := ['x, 'y, 'z, '_\mu];
+OVL ==> OrderedVariableList(ALPHABET)
+OFM ==> FreeMonoid(OVL)
+F ==> Complex(Fraction(Integer))
+G ==> Fraction(Polynomial(Integer))
+PF ==> Polynomial F
+XDP ==> XDPOLY(OVL, F)
+YDP ==> XDPOLY(OVL, PF)
+NCP ==> NCPOLY(OVL, F)
+GDP ==> XDPOLY(OVL, G)
+x := 'x::OFM;
+y := 'y::OFM;
+z := 'z::OFM;
+mu := '_\mu::OFM;
+OF ==> OutputForm
+als ==> admissibleLinearSystem
+rep ==> representation
+lin ==> linearization
+inv ==> invertMIN
+AOn ==> enableAlternativeOutput
+AOff ==> disableAlternativeOutput
+ATog ==> toggleAlternativeOutput
+DOn ==> enableDebugOutput
+DOff ==> disableDebugOutput
+DTog ==> toggleDebugOutput
+
+liftMatrix(A:Matrix XDP) : Matrix YDP ==
+    map(x +-> map(c +-> c::PF, x)$FreeModuleCoefficientFunctions2(F, PF, OFM, XDP, YDP),A)
+listIdeals(B:Matrix(YDP)) : List(List(PF)) == 
+  n := nrows(B)
+  list_I:List(List(PF)) := []
+  list := []
+  for i in 1 .. n-2 repeat 
+      for j in i+2..n repeat
+          entries := members subMatrix(B, 1, i, j, n)
+          coeffs := concat map(coefficients, entries)
+          list_I := cons(removeDuplicates coeffs, list_I)
+  list_I
+listIdealsf(f:NCP, a:Symbol, b:Symbol) : List(List(PF)) == 
+  A:Matrix XDP := matrix f
+  Af:Matrix YDP := liftMatrix A
+  P1 := leftTransformation(f, a)
+  P2 := rightTransformation(f, b)  
+  P1AP2:Matrix YDP := P1*Af*P2
+  listIdeals P1AP2
+

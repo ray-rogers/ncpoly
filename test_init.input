@@ -1,0 +1,53 @@
+)clear all
+)read nc_ini03-a.input 
+-- )quietly option after read fouls up the read
+--)read nc_ini03.input
+--)display names
+--
+--
+-- Factor test
+--
+--
+factorCheck(x:XDP , y:LIST(XDP)): BOOLEAN  ==
+ m:=1::XDP;
+ for i in y repeat m:=m*(i::XDP) 
+ test(x = m)
+--
+--
+--
+NCPrecord : Record( _
+ polInput 	: Any ,_
+ polNCP 	: Any ,_
+ polFactors : Any ,_
+ NCprod		: Any ,_
+ NCrep		: Any ,_
+ NCpencil	: Any ,_
+ NCpass  	: Any _
+ )			:=['nil , 'nil  , 'nil, 'nil, 'nil, 'nil, 'nil]  
+
+ 
+--
+buildrecord(pol)  ==
+ pollyFact  			:= factorization(pol)
+ pollyFacts 			:= pollyFact :: LIST(XDP)
+ passFail   			:= factorCheck(pol::XDP,pollyFacts::LIST(XDP))::BOOLEAN
+ prod					:=1::XDP
+ for i in pollyFacts repeat _
+ prod					:=prod*(i::XDP)
+ NCPrecord.NCrep		:= representation(pol)
+ NCPrecord.NCpencil		:= pencil(pol)
+ NCPrecord.polInput 	:= pol::XDP
+ NCPrecord.polNCP   	:= pollyFact
+ NCPrecord.polFactors 	:= pollyFacts
+ NCPrecord.NCprod   	:= prod
+ NCPrecord.NCpass 		:= if passFail then "pass" else "fail"
+ NCPrecord
+ 
+ 
+ 
+--
+)read tests.input
+
+
+
+
