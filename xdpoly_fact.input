@@ -5,6 +5,19 @@
 
 --)read nc_ini03
 
+ALPHABET := ['x, 'y, 'z];
+OVL ==> OrderedVariableList(ALPHABET)
+OFM ==> FreeMonoid(OVL)
+F ==> Fraction(Integer)
+G ==> Fraction(Polynomial(Integer))
+XDP ==> XDPOLY(OVL, F)
+YDP ==> XDPOLY(OVL, G)
+--NCP ==> NCPOLY(OVL, F)
+x := 'x::OFM;
+y := 'y::OFM;
+z := 'z::OFM;
+OF ==> OutputForm
+
 p_1 : XDP := x*(1-y*x);
 
 leftSubwords(p:XDP) : List(YDP) ==
@@ -60,4 +73,3 @@ factorizationEquations(p:XDP) : List(G) ==
     c_2 := coefficient(fp, mon)
     lst_eqn := cons(c_2-c_1::G, lst_eqn)
   lst_eqn
-    
