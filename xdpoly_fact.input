@@ -1,0 +1,63 @@
+-- Factorization of non-commutative polynomials in the
+-- free associative algebra XDPOLY using an ansatz
+-- Idea: Daniel Smertnig, January 26, 2017
+-- Test: Konrad Schrempf, Mit 2018-07-04 10:33
+
+--)read nc_ini03
+
+p_1 : XDP := x*(1-y*x);
+
+leftSubwords(p:XDP) : List(YDP) ==
+  lst_wrd : List(OFM) := []
+  for mon in support(p) repeat
+    wrd := 1$OFM
+    for fct in factors(mon) repeat
+      for i in 1 .. fct.exp repeat
+        pos := position(wrd, lst_wrd)::NNI
+        if zero?(pos) then
+          lst_wrd := cons(wrd, lst_wrd)
+        wrd := wrd*(fct.gen)::OFM
+  lst_pol : List(YDP) := []
+  cnt_pol := #lst_wrd
+  for wrd in lst_wrd repeat
+    sym_tmp := (a[cnt_pol])::Symbol
+    lst_pol := cons(sym_tmp*wrd::YDP, lst_pol)
+    cnt_pol := (cnt_pol-1)::NNI
+  lst_pol
+
+rightSubwords(p:XDP) : List(YDP) ==
+  lst_wrd : List(OFM) := []
+  for mon in support(p) repeat
+    wrd := 1$OFM
+    for fct in reverse(factors(mon)) repeat
+      for i in 1 .. fct.exp repeat
+        pos := position(wrd, lst_wrd)::NNI
+        if zero?(pos) then
+          lst_wrd := cons(wrd, lst_wrd)
+        wrd := (fct.gen)::OFM*wrd
+  lst_pol : List(YDP) := []
+  cnt_pol := #lst_wrd
+  for wrd in lst_wrd repeat
+    sym_tmp := (b[cnt_pol])::Symbol
+    lst_pol := cons(sym_tmp*wrd::YDP, lst_pol)
+    cnt_pol := (cnt_pol-1)::NNI
+  lst_pol
+
+factorizationPolynomial(p:XDP) : YDP ==
+  lsw := leftSubwords(p)
+  rsw := rightSubwords(p)
+  fp := 0$YDP
+  for lw in lsw repeat
+    for rw in rsw repeat
+      fp := fp + lw*rw
+  fp
+
+factorizationEquations(p:XDP) : List(G) ==
+  lst_eqn : List(G) := []
+  fp := factorizationPolynomial(p)
+  for mon in support(fp) repeat
+    c_1 := coefficient(p, mon)
+    c_2 := coefficient(fp, mon)
+    lst_eqn := cons(c_2-c_1::G, lst_eqn)
+  lst_eqn
+    
