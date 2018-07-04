@@ -72,4 +72,8 @@ factorizationEquations(p:XDP) : List(G) ==
     c_1 := coefficient(p, mon)
     c_2 := coefficient(fp, mon)
     lst_eqn := cons(c_2-c_1::G, lst_eqn)
+  for mon in support(p) repeat
+    if zero?(coefficient(fp, mon)) then
+      lst_eqn := []
+      break
   lst_eqn
